@@ -35,7 +35,7 @@ enum Sex {
 }
 ```
 
-Will result in two `.avsc` files; `Person.avsc` and `Sex.avsc`. 
+Will result in two `.avsc` files; `Person.avsc` and `Sex.avsc`.
 The `Person.avsc` file will be **self-contained** and not depend on `Sex.avsc`.
 
 If you only want one single file you can declare a main schema as such:
@@ -57,6 +57,7 @@ enum Sex {
 	FEMALE
 }
 ```
+
 This will only output self-contained `Person.avsc` file.
 
 Add the plugin to your `pom.xml`
@@ -64,20 +65,20 @@ Add the plugin to your `pom.xml`
 ```xml
 
 <plugin>
-  <groupId>io.jonasg</groupId>
-  <artifactId>avdl-to-avsc-maven-plugin</artifactId>
-  <version>${avdl-to-avsc-maven-plugin.version}</version>
-  <executions>
-    <execution>
-      <goals>
-        <goal>avdl-to-avsc</goal>
-      </goals>
-      <configuration>
-        <avdlDirectory>${avdl.dir}</avdlDirectory>
-        <avscDirectory>${project.build.directory}/generated-sources/avsc</avscDirectory>
-      </configuration>
-    </execution>
-  </executions>
+    <groupId>io.jonasg</groupId>
+    <artifactId>avdl-to-avsc-maven-plugin</artifactId>
+    <version>${avdl-to-avsc-maven-plugin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>avdl-to-avsc</goal>
+            </goals>
+            <configuration>
+                <avdlDirectory>${avdl.dir}</avdlDirectory>
+                <avscDirectory>${project.build.directory}/generated-sources/avsc</avscDirectory>
+            </configuration>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -86,15 +87,65 @@ Add the plugin to your `pom.xml`
 ```xml
 
 <plugins>
-  <plugin>
-    <groupId>io.confluent</groupId>
-    <artifactId>kafka-schema-registry-maven-plugin</artifactId>
-    <version>${confluent.version}</version>
-    <configuration>
-      <subjects>
-        <my-subject>target/generated-sources/avsc/Event.avsc</my-subject>
-      </subjects>
-    </configuration>
-  </plugin>
+    <plugin>
+        <groupId>io.confluent</groupId>
+        <artifactId>kafka-schema-registry-maven-plugin</artifactId>
+        <version>${confluent.version}</version>
+        <configuration>
+            <subjects>
+                <my-subject>target/generated-sources/avsc/Event.avsc</my-subject>
+            </subjects>
+        </configuration>
+    </plugin>
 </plugins>
+```
+
+## Porting AVDL directory structure to the AVSC output
+
+the plugin `maintainDirectoryStructure` configuration option allows you to maintain the directory structure of your AVDL
+files in the output AVSC directory. When set to `true`, the plugin will create subdirectories in the output AVSC
+directory
+that mirror the structure of the input AVDL directory.
+
+given the following plugin configuration :
+
+```xml
+
+<plugin>
+    <groupId>io.jonasg</groupId>
+    <artifactId>avdl-to-avsc-maven-plugin</artifactId>
+    <version>${avdl-to-avsc-maven-plugin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>avdl-to-avsc</goal>
+            </goals>
+            <configuration>
+                <avdlDirectory>src/main/resources/avdl</avdlDirectory>
+                <avscDirectory>${project.build.directory}/generated-sources/avsc</avscDirectory>
+                <maintainDirectoryStructure>true</maintainDirectoryStructure>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>   
+```
+
+And the AVDL source directory structure :
+
+```src/main/resources/avdl
+├── user
+│   ├── User.avdl
+│   └── Address.avdl
+└── order
+    └── Order.avdl
+``` 
+
+The plugin will generate the below AVSC directory structure:
+
+```target/generated-sources/avsc
+├── user
+│   ├── User.avsc
+│   └── Address.avsc
+└── order
+    └── Order.avsc
 ```
