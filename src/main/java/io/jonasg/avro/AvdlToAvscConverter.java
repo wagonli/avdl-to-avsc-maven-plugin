@@ -1,6 +1,7 @@
 package io.jonasg.avro;
 
-import static java.nio.file.Files.walk;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,12 +11,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.plugin.logging.Log;
+import static java.nio.file.Files.walk;
 
 public class AvdlToAvscConverter {
 
-    private final IdlToSchemataTool idlToSchemataTool  = new IdlToSchemataTool();;
+    private final IdlToSchemataTool idlToSchemataTool = new IdlToSchemataTool();
+    ;
 
     private final Log log;
 
@@ -23,17 +24,22 @@ public class AvdlToAvscConverter {
         this.log = log;
     }
 
-    public void convert(String avdlDirectory, String avscDirectory) {
-        Path avdlPath = new File(avdlDirectory).toPath();
-        if (!avdlPath.toFile().exists()) {
-            log.error("Avdl directory does not exist: " + avdlPath);
+    public void convert(ConverterConfiguration configuration) {
+        if (!configuration.avdlPath().toFile().exists()) {
+            log.error("Avdl directory does not exist: " + configuration.avdlPath());
             return;
         }
 
-        try(Stream<Path> stream = walk(avdlPath)) {
+        try (Stream<Path> stream = walk(configuration.avdlPath())) {
             stream
                     .filter(this::onAvdlExtension)
-                    .forEach(avdlFile -> avdlToAvsc(avdlFile, new File(avscDirectory)));
+                    .forEach(avdlFile -> {
+                        var relativeAvdlPath = configuration.avdlPath().relativize(avdlFile.getParent());
+                        var outputDirectory = configuration.maintainDirectoryStructure()
+                                ? configuration.avscPath().resolve(relativeAvdlPath)
+                                : configuration.avscPath();
+                        avdlToAvsc(avdlFile, outputDirectory.toFile());
+                    });
 
         } catch (IOException e) {
             log.error("Error walking avdl directory", e);
