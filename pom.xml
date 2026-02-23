@@ -10,13 +10,13 @@
 	<packaging>maven-plugin</packaging>
 
 	<name>avdl-to-avsc-maven-plugin</name>
-	<url>https://github.com/jonasg-grgt/avdl-to-avsc-maven-plugin</url>
+	<url>https://github.com/jonas-grgt/avdl-to-avsc-maven-plugin</url>
 
 	<description>maven plugin to convert AVDL to AVSC</description>
 
 	<scm>
-		<url>https://github.com/jonasg-grgt/avdl-to-avsc-maven-plugin</url>
-		<connection>scm:git:https://github.com/jonasg-grgt/avdl-to-avsc-maven-plugin</connection>
+		<url>https://github.com/jonas-grgt/avdl-to-avsc-maven-plugin</url>
+		<connection>scm:git:https://github.com/jonas-grgt/avdl-to-avsc-maven-plugin</connection>
 		<tag>HEAD</tag>
 	</scm>
 
